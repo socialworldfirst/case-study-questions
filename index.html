@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Case study questions</title>
+<style>
+  :root{--ink:#16181d;--ink2:#3c4148;--mut:#71777f;--faint:#9aa0a6;--line:#e7e7e4;--bg:#fbfbf9;--card:#fff;--ok:#3f7d58;--accent:#16181d;--rec:#b07a2b;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:120px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 24px 0}
+  h1{font-size:27px;letter-spacing:-.02em;font-weight:650;margin-bottom:8px}
+  .lede{color:var(--ink2);font-size:15.5px;max-width:64ch;margin-bottom:6px}
+  .stamp{color:var(--faint);font-size:12.5px;margin-bottom:8px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);font-weight:650;margin:40px 0 4px;display:flex;align-items:baseline;gap:10px}
+  .ct{font-size:12px;color:var(--faint);letter-spacing:.02em;text-transform:none;font-weight:500}
+  .ct.full{color:var(--ok)}
+  .sub{color:var(--mut);font-size:13.5px;margin-bottom:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px 17px;margin-bottom:11px;cursor:pointer;transition:border-color .12s,box-shadow .12s;position:relative}
+  .card:hover{border-color:#cfd2cc}
+  .card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .card.disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:13px;align-items:flex-start}
+  .tick{flex:none;width:22px;height:22px;border-radius:6px;border:1.5px solid #c4c4bf;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:.12s}
+  .radio .tick{border-radius:50%}
+  .tick svg{width:12px;height:12px;opacity:0;transition:.12s}
+  .card.sel .tick{background:var(--accent);border-color:var(--accent)}
+  .card.sel .tick svg{opacity:1}
+  .body{flex:1;min-width:0}
+  .name{font-weight:600;font-size:15px;letter-spacing:-.01em}
+  .name .rec{font-size:11px;color:var(--rec);font-weight:650;margin-left:8px}
+  .name .tag{font-size:11px;color:var(--ok);font-weight:650;margin-left:8px}
+  .meta{font-size:12.5px;color:var(--faint);font-family:ui-monospace,Menlo,monospace;margin:1px 0 6px}
+  .desc{font-size:13.5px;color:var(--ink2);line-height:1.5}
+  .desc b{color:var(--ink);font-weight:600}
+  .note{margin-top:11px;display:none}
+  .card.sel .note{display:block}
+  .note label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:600;display:block;margin-bottom:5px}
+  .note textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:13px/1.45 inherit;resize:vertical;min-height:34px;color:var(--ink);background:#fcfcfa}
+  .note textarea:focus{outline:none;border-color:var(--mut)}
+  .global{margin-top:20px}
+  .global label{font-size:13px;color:var(--mut);font-weight:600;display:block;margin-bottom:7px}
+  .global textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font:14px/1.5 inherit;resize:vertical;min-height:60px;background:var(--card)}
+  .global textarea:focus{outline:none;border-color:var(--mut)}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(251,251,249,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:14px 24px}
+  .bar-in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:16px;justify-content:space-between}
+  .status{font-size:13px;color:var(--mut)} .status b{color:var(--ink)}
+  .btn{border:0;background:var(--ink);color:#fff;font:600 14px/1 inherit;padding:13px 22px;border-radius:10px;cursor:pointer;transition:.12s;white-space:nowrap}
+  .btn:disabled{background:#c8cdc6;cursor:not-allowed}
+  .btn.done{background:var(--ok)}
+  @media(max-width:620px){.wrap{padding:32px 16px 0}.bar-in{flex-direction:column;align-items:stretch;gap:10px}.btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title"></h1>
+  <p class="lede" id="intro"></p>
+  <p class="stamp" id="stamp"></p>
+  <div id="sections"></div>
+  <div class="global" id="globalWrap" style="display:none">
+    <label id="gnoteLabel"></label>
+    <textarea id="gnote"></textarea>
+  </div>
+</div>
+<div class="bar"><div class="bar-in">
+  <div class="status" id="status"></div>
+  <button class="btn" id="copy" disabled>Copy prompt</button>
+</div></div>
+<script>
+/* === DECK START === */
+const DECK = {
+  title: "Case study questions: keep, drop, comment",
+  intro: "Ross's 36-question master list, rated, plus 9 questions he missed. Ticked = stays in the master list. Untick to drop. CORE = must ask. STRONG = high value. NICE = situational. AM DATA = get it from the account manager, not the customer. MERGE = fold into a neighbour.",
+  stamp: "Ross's doc 27 Aug 2026 · ratings and adds by Claude · ticked = keep",
+  promptHeader: "case-study-question-deck",
+  promptAction: "Rebuild the master question list from exactly what I ticked (ticked = keep), apply my notes, keep Ross's section order, and output the revised list ready to send back to Ross plus a form build sheet.",
+  globalNote: { label: "Anything else (reshuffle instructions, new questions, notes for Ross)", placeholder: "e.g. move FX section earlier, cap the form at 15 questions, add a question about..." },
+  sections: [
+    { key:"about", label:"About you and your business", sub:"Q1-6 · identity and shape of the company", pick:4, notes:true, items:[
+      {name:"Q1 · Name and job title", meta:"Your name and your job title.", desc:"<b>Attribution.</b> No named quote without it. Admin, but non-negotiable.", rec:true, tag:"CORE"},
+      {name:"Q2 · Company in one sentence", meta:"How would you describe your company in one sentence?", desc:"<b>The positioning line.</b> Their own words usually beat anything we would write.", rec:true, tag:"CORE"},
+      {name:"Q3 · Headcount + finance/ops headcount", meta:"How many people work at your company, and how many in finance or operations?", desc:"The finance-team-size number is what makes 'hours saved' credible. A 3-person finance team saving 40 hours a month is a story.", rec:true, tag:"STRONG"},
+      {name:"Q4 · What you sell and to whom", meta:"What do you sell, and who do you sell it to?", desc:"Real question, wrong place. A good answer to Q2 already covers it. Fold into Q2 as a prompt hint.", tag:"MERGE"},
+      {name:"Q5 · Markets in, markets sourced from", meta:"Which markets do you sell into, and which do you buy or source from?", desc:"<b>The corridor map.</b> This is the WF-shaped fact that decides which products the story features.", rec:true, tag:"CORE"},
+      {name:"Q6 · Where the business is heading", meta:"Where is the business heading over the next year or two?", desc:"Gives the forward-looking closer quote. Nice for the last paragraph, never load-bearing.", tag:"NICE"} ] },
+    { key:"before", label:"Before WorldFirst", sub:"Q7-12 · the before state, where the story lives", pick:4, notes:true, items:[
+      {name:"Q7 · How you received payments before", meta:"How were you receiving payments from customers or marketplaces before WorldFirst?", desc:"<b>Collections before.</b> Half of the before picture.", rec:true, tag:"CORE"},
+      {name:"Q8 · How you paid out before", meta:"How were you paying suppliers, logistics, contractors in other currencies?", desc:"<b>Payouts before.</b> The other half. Keep 7 and 8 separate in the form, merge in interviews.", rec:true, tag:"CORE"},
+      {name:"Q9 · What the old setup consisted of", meta:"Local bank accounts, marketplace payouts, wires, another provider?", desc:"Just the detail layer of Q7/Q8. Fold in as examples under those two rather than a third question.", tag:"MERGE"},
+      {name:"Q10 · What was going wrong, and what it cost", meta:"Be specific about time, money, or opportunities you could not take.", desc:"<b>The single most important question in the doc.</b> Every strong story is built on this answer.", rec:true, tag:"CORE"},
+      {name:"Q11 · The trigger moment", meta:"Was there a particular moment that made you look for something else?", desc:"The narrative spine. This is where the '11pm on the last day of the month' detail comes from.", rec:true, tag:"STRONG"},
+      {name:"Q12 · What else you looked at, why WF won", meta:"What else did you look at, and what made you choose WorldFirst?", desc:"Useful for us, but expect the customer's comms team to strike competitor names. Ask it, plan to publish little of it.", tag:"STRONG"} ] },
+    { key:"setup", label:"Setting up", sub:"Q13-15 · onboarding", pick:1, notes:true, items:[
+      {name:"Q13 · How onboarding went, how long", meta:"How did onboarding go, and how long did it take?", desc:"Onboarding speed is a genuine WF selling point against banks. Keep, and get the AM's number as backup.", tag:"STRONG"},
+      {name:"Q14 · How the team took to it", meta:"How did your team take to it?", desc:"Same ground as Q13 and Q15. Fold into Q13.", tag:"MERGE"},
+      {name:"Q15 · Anything surprising, good or bad", meta:"Was there anything that surprised you?", desc:"A quote generator in interviews, dead air in a form. Keep for the call route only.", tag:"NICE"} ] },
+    { key:"usage", label:"How you use WorldFirst now", sub:"Q16-22 · the present state", pick:4, notes:true, items:[
+      {name:"Q16 · Which WF products you use", meta:"World Account, World Card, WorldTrade, conversion?", desc:"The AM already knows the list, but how the customer frames it tells you what they actually value. Keep, verify against AM.", tag:"STRONG"},
+      {name:"Q17 · How many currencies", meta:"How many currencies do you hold, receive in, pay out in?", desc:"Ross's own rule says numbers come from the AM, not the customer. This one is pure platform data. Cut from the customer list.", tag:"AM DATA"},
+      {name:"Q18 · Which marketplaces and gateways", meta:"Which marketplaces, gateways, platforms do you collect from?", desc:"Also visible to the AM. Only worth asking if the AM cannot see third-party stores.", tag:"AM DATA"},
+      {name:"Q19 · Walk through one payment start to finish", meta:"One payment or one collection, as it works today.", desc:"<b>The concrete scene.</b> The single question that turns a feature list into a story. Non-negotiable in interviews.", rec:true, tag:"CORE"},
+      {name:"Q20 · Who uses the platform day to day", meta:"Who in your team uses it, and for what?", desc:"Gives the story its characters. The ops manager who stopped doing manual recon is the human angle.", tag:"STRONG"},
+      {name:"Q21 · World Card and spend on it", meta:"Do you use World Card, and what do you spend on it?", desc:"Duplicates Q16, and the spend figure is AM data. Cut.", tag:"DROP"},
+      {name:"Q22 · ERP or accounting integration", meta:"Do you connect WF to your accounting or ERP system? Which one?", desc:"Integration proof matters for enterprise stories and for the 'teams, not solo sellers' audience.", tag:"STRONG"} ] },
+    { key:"fx", label:"Currency and exchange rates", sub:"Q23-25 · the FX story", pick:1, notes:true, items:[
+      {name:"Q23 · How you handle rates: live, locked, target", meta:"Convert at live rate, lock ahead, or set a target rate?", desc:"<b>The Forwards question.</b> One well-answered rate question carries the whole FX section.", rec:true, tag:"STRONG"},
+      {name:"Q24 · How far ahead you need cost visibility", meta:"How far ahead do you need to know what a payment will cost?", desc:"A follow-up hiding as a question. Fold into Q23.", tag:"MERGE"},
+      {name:"Q25 · Has currency risk management changed", meta:"Has the way you manage currency risk changed since you moved?", desc:"Same ground as Q23 asked backwards. Fold into Q23 as the before/after half.", tag:"MERGE"} ] },
+    { key:"changed", label:"What changed", sub:"Q26-30 · the proof section, keep all of it", pick:5, notes:true, items:[
+      {name:"Q26 · What changed that you can put a number on", meta:"Time, volume, currencies, markets, cost. Estimates fine, flagged.", desc:"<b>The proof question.</b> The 'say if it is an estimate' framing is exactly right and legal-friendly.", rec:true, tag:"CORE"},
+      {name:"Q27 · Payment time before vs now", meta:"How long did payments take before, how long now?", desc:"The cleanest before/after number we can get. Headline stat in most stories.", rec:true, tag:"CORE"},
+      {name:"Q28 · Team hours on payments and recon, before vs now", meta:"Time a month on payments and reconciliation, compared with before.", desc:"The efficiency stat, and it multiplies with Q3's finance headcount.", rec:true, tag:"CORE"},
+      {name:"Q29 · What you can do now that you could not", meta:"New markets, suppliers, currencies, or a different way of managing cash.", desc:"<b>The growth story.</b> Turns the piece from cost-saving into expansion, which is the better genre.", rec:true, tag:"CORE"},
+      {name:"Q30 · Anything harder, anything still missing", meta:"Has anything got harder, or is there anything you would like to see?", desc:"Rarely published, but it buys credibility in the room and is free product feedback. Keep.", tag:"STRONG"} ] },
+    { key:"team", label:"Working with WorldFirst", sub:"Q31-33 · relationship", pick:2, notes:true, items:[
+      {name:"Q31 · Experience of the WF team", meta:"What has working with the WorldFirst team been like?", desc:"Generates generic praise. Harmless, but the answer is nearly always 'great'. Keep short or cut.", tag:"NICE"},
+      {name:"Q32 · Named account manager and how you use them", meta:"Do you work with a named AM, and how?", desc:"The named-AM service model is a real differentiator against self-serve rivals. Worth keeping for enterprise stories.", tag:"STRONG"},
+      {name:"Q33 · What another business should know", meta:"Anything you would want another business in your position to know?", desc:"<b>The closer.</b> Produces the peer-to-peer quote that ends the piece. Classic for a reason.", rec:true, tag:"STRONG"} ] },
+    { key:"publish", label:"What we would like to publish", sub:"Q34-36 · consent and assets, keep all of it", pick:3, notes:true, items:[
+      {name:"Q34 · The strike-out publish list", meta:"Currencies, markets, transaction counts, value moved, times, cards, ERP, size.", desc:"<b>The best question in the doc.</b> Builds the fact allowlist at intake instead of negotiating it after drafting, which is where DeepSeek got painful.", rec:true, tag:"CORE"},
+      {name:"Q35 · Logo vector and one photo", meta:"Vector logo plus a photo of team, office, or product.", desc:"A production blocker if missing. Asking at intake saves a two-week chase later.", rec:true, tag:"CORE"},
+      {name:"Q36 · Who approves, who to copy in", meta:"Who needs to approve the finished piece?", desc:"The sign-off chain, captured before drafting. Prevents the surprise stakeholder at the end.", rec:true, tag:"CORE"} ] },
+    { key:"missed", label:"What Ross missed", sub:"9 additions · my case for each", pick:5, notes:true, items:[
+      {name:"M1 · Naming consent up front", meta:"Can we name you and your company, or industry-only?", desc:"<b>Q34 covers data points but never the identity itself.</b> Anonymity tier decided at intake, not at sign-off.", rec:true, tag:"CORE"},
+      {name:"M2 · Channel and language preference", meta:"WeChat, DingTalk, or email for follow-ups? Which language for the interview and for approving quotes?", desc:"<b>The CN reality question.</b> Google Forms do not open in mainland China and quotes approved in Chinese need a translation-approval step. The doc ignores both.", rec:true, tag:"CORE"},
+      {name:"M3 · What nearly stopped you", meta:"What almost made you not choose WorldFirst?", desc:"The objection question. The doubt-then-resolution beat is what makes a story believable instead of an advert.", rec:true, tag:"STRONG"},
+      {name:"M4 · Peak season, what broke first", meta:"What does your peak look like, and what used to break first?", desc:"Concrete scene generator for Q4, Canton Fair, and campaign tie-ins. Peak stress is where payment stories get vivid.", tag:"STRONG"},
+      {name:"M5 · What FX was costing you before", meta:"Roughly what were you losing to spread and fees? Estimates fine.", desc:"Customers never volunteer this number and Q10 rarely surfaces it. A direct, estimate-friendly ask gets the cost stat.", tag:"STRONG"},
+      {name:"M6 · What it lets you do for YOUR customers", meta:"What does faster settlement let you do for your customers and suppliers?", desc:"<b>The client-hero question.</b> Pushes the benefit one step downstream, which is where the genre we want lives.", rec:true, tag:"STRONG"},
+      {name:"M7 · Can we come back in 6-12 months", meta:"Would you be open to a short update to this story later?", desc:"Makes every story renewable instead of one-shot. For a high-volume pipeline this is the flywheel question.", rec:true, tag:"STRONG"},
+      {name:"M8 · Will you share it on your own channels", meta:"Would you or your team post the story on LinkedIn or WeChat?", desc:"Distribution consent captured at intake feeds the D0-D10 amplify run-sheet. Asking after publish is too late.", rec:true, tag:"STRONG"},
+      {name:"M9 · Appetite for a video quote later", meta:"Would you sit for a 60-second video quote down the line?", desc:"Pipelines written stories into customer film casting. Low cost to ask, high value when they say yes.", tag:"NICE"} ] }
+  ]
+};
+/* === DECK END === */
+
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+/* No hard caps: every section is free multi-select. `pick` is a SUGGESTED count only. */
+const state={}, notes={};
+DECK.sections.forEach(s=>{ state[s.key]= new Set(); notes[s.key]={}; });
+
+document.getElementById('title').textContent=DECK.title||'Deck';
+document.getElementById('intro').textContent=DECK.intro||'';
+document.getElementById('stamp').textContent=DECK.stamp||'';
+if(DECK.globalNote){ document.getElementById('globalWrap').style.display='block';
+  document.getElementById('gnoteLabel').textContent=DECK.globalNote.label||'Notes';
+  document.getElementById('gnote').placeholder=DECK.globalNote.placeholder||''; }
+
+const root=document.getElementById('sections');
+DECK.sections.forEach(s=>{
+  const h=document.createElement('h2'); h.innerHTML=`${s.label} <span class="ct" id="ct-${s.key}"></span>`; root.appendChild(h);
+  if(s.sub){ const p=document.createElement('p'); p.className='sub'; p.textContent=s.sub; root.appendChild(p); }
+  const box=document.createElement('div'); box.id='sec-'+s.key; root.appendChild(box);
+  s.items.forEach((o,i)=> box.appendChild(card(s,i,o)));
+});
+
+function card(s,i,o){
+  const el=document.createElement('div'); el.className='card'+(s.mode==='single'?' radio':''); el.dataset.k=s.key; el.dataset.i=i;
+  const rec=o.rec?'<span class="rec">★ rec</span>':'';
+  const tag=o.tag?`<span class="tag">${o.tag}</span>`:'';
+  const meta=o.meta?`<div class="meta">${o.meta}</div>`:'';
+  const note=s.notes?`<div class="note"><label>your note (optional)</label><textarea placeholder="note on this pick..."></textarea></div>`:'';
+  el.innerHTML=`<div class="row"><div class="tick">${CHECK}</div><div class="body"><div class="name">${o.name}${rec}${tag}</div>${meta}<div class="desc">${o.desc||''}</div>${note}</div></div>`;
+  el.addEventListener('click',e=>{ if(e.target.tagName==='TEXTAREA')return; toggle(s,i,el); });
+  const ta=el.querySelector('textarea'); if(ta){ ta.addEventListener('click',e=>e.stopPropagation()); ta.addEventListener('input',e=>{ notes[s.key][i]=e.target.value; }); }
+  return el;
+}
+function toggle(s,i,el){
+  const set=state[s.key];
+  if(set.has(i)){ set.delete(i); el.classList.remove('sel'); }
+  else { set.add(i); el.classList.add('sel'); }
+  update();
+}
+function selCount(s){ return state[s.key].size; }
+function totalCount(){ return DECK.sections.reduce((t,s)=>t+selCount(s),0); }
+function update(){
+  DECK.sections.forEach(s=>{ const c=document.getElementById('ct-'+s.key); c.textContent=`suggest ${s.pick} · ${selCount(s)} selected`; c.className='ct'+(selCount(s)>0?' full':''); });
+  const total=totalCount(); const btn=document.getElementById('copy'); btn.disabled=total===0; btn.classList.remove('done'); btn.textContent='Copy prompt';
+  document.getElementById('status').innerHTML = total===0
+    ? 'Select anything. No limits, the prompt carries whatever you pick.'
+    : `<b>${total}</b> pick${total===1?'':'s'} in the prompt. Suggested counts are guidance only.`;
+}
+function buildPrompt(){
+  let L=['== '+(DECK.promptHeader||'deck')+' =='];
+  DECK.sections.forEach(s=>{
+    if(selCount(s)===0) return;
+    L.push(`${s.label} (${selCount(s)} picked, ${s.pick} suggested):`);
+    [...state[s.key]].forEach((i,n)=>{ const o=s.items[i]; const nt=notes[s.key][i]?` [note: ${notes[s.key][i].trim()}]`:''; L.push(`  ${n+1}. ${o.name}${nt}`); });
+  });
+  const g=DECK.globalNote? document.getElementById('gnote').value.trim():'';
+  if(g) L.push('NOTES: '+g);
+  L.push('> Counts are my call, work with exactly what I ticked.');
+  if(DECK.promptAction) L.push('> '+DECK.promptAction);
+  return L.join('\n');
+}
+document.getElementById('copy').addEventListener('click',async()=>{
+  const txt=buildPrompt();
+  try{ await navigator.clipboard.writeText(txt); }catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  const b=document.getElementById('copy'); b.classList.add('done'); b.textContent='Copied · paste it to Claude'; setTimeout(()=>{ if(!b.disabled){b.classList.remove('done'); b.textContent='Copy prompt';} },2600);
+});
+update();
+</script>
+</body>
+</html>
